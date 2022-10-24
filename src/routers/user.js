@@ -30,6 +30,7 @@ router.post('/login', async (req, res) => {
     }
 })
 
+// Logout from current session
 router.post('/logout', auth, async (req, res) => {
     try {
         req.user.tokens = req.user.tokens.filter((token) => {
@@ -42,6 +43,7 @@ router.post('/logout', auth, async (req, res) => {
     }
 })
 
+// Logout from all sessions
 router.post('/logoutAll', auth, async (req, res) => {
     try {
         req.user.tokens = []

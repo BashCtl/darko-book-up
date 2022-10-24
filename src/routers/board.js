@@ -4,6 +4,7 @@ const auth = require('../middleware/auth')
 
 const router = new express.Router()
 
+// Create new user board
 router.post('/user/board', auth, async (req, res) => {
     const board = new Board({
         ...req.body,
@@ -17,6 +18,7 @@ router.post('/user/board', auth, async (req, res) => {
     }
 })
 
+// Create new note on board by its id
 router.post('/user/board/notes/:id', auth, async (req, res) => {
     const message = req.body.message
 
@@ -24,16 +26,52 @@ router.post('/user/board/notes/:id', auth, async (req, res) => {
         return res.status(400).send({error: 'Empty note'})
     }
     try {
-        const board = await Board.findOne({_id: req.params.id})
-        const note = new Note({message})
-        board.notes.push(note)
-        await board.save()
-        res.send(board)
+        const note = new Note({message, owner: req.params.id})
+        await note.save()
+        res.send(note)
     } catch (error) {
         res.status(400).send(error)
     }
 })
 
+// Update note by its id
+router.patch('/user/board/notes/:id', auth, async (req, res) => {
+    try {
+        const board = await Board.findOne({owner: req.user._id})
+        const note = await Note.findOne({_id: req.params.id, owner: board._id})
+        if (!board) {
+            return res.status(404).send({error: 'Board not found'})
+        }
+        if (!note) {
+            return res.status(404).send({error: 'Note not found'})
+        }
+
+        if (!req.body.message) {
+            return res.status(400).send({error: 'Message field must be provided.'})
+        }
+        const message = req.body.message
+        note.message = message
+        await note.save()
+        res.send(note)
+    } catch (e) {
+        res.status(500).send(e)
+    }
+})
+
+// Get all user notes for board (by board id)
+router.get('/user/board/notes/:id', auth, async (req, res) => {
+    try {
+        const notes = await Note.find({owner: req.params.id}).exec()
+        if (!notes) {
+            return res.status(404).send({error: 'Notes was not found.'})
+        }
+        res.send(notes)
+    } catch (e) {
+        res.status(500).send(e)
+    }
+})
+
+// Get all user boards
 router.get('/user/boards', auth, async (req, res) => {
     try {
         const boards = await Board.find({owner: req.user._id})
@@ -43,22 +81,32 @@ router.get('/user/boards', auth, async (req, res) => {
     }
 })
 
+// Get user board by its id
+router.get('/user/board/:id', auth, async (req, res) => {
+    try {
+        const board = await Board.findById({_id: req.params.id})
+        if (!board) {
+            return res.status(404).send({error: 'Board not found.'})
+        }
+        res.send(board)
+    } catch (e) {
+        res.status(500).sende
+    }
+})
+
+// Delete user board by id
 router.delete('/user/boards/:id', auth, async (req, res) => {
     try {
-        await Board.findByIdAndDelete({_id: req.params.id})
-        res.sendStatus(200)
+        const board = await Board.findById({_id: req.params.id})
+        if(!board){
+            return res.status(404).send({error: 'Board not found.'})
+        }
+        board.remove()
+        res.status(200).send({message: 'Board was successfully deleted.'})
     } catch (e) {
         res.status(400).send(e)
     }
 })
 
-router.delete('/user/boards', auth, async (req, res) => {
-    try {
-        await Board.deleteMany({owner: req.user._id})
-        res.sendStatus(200)
-    } catch (e) {
-        res.status(400).send(e)
-    }
-})
 
 module.exports = router
