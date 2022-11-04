@@ -90,7 +90,7 @@ router.get('/user/board/:id', auth, async (req, res) => {
         }
         res.send(board)
     } catch (e) {
-        res.status(500).sende
+        res.status(500).send()
     }
 })
 
@@ -98,13 +98,26 @@ router.get('/user/board/:id', auth, async (req, res) => {
 router.delete('/user/boards/:id', auth, async (req, res) => {
     try {
         const board = await Board.findById({_id: req.params.id})
-        if(!board){
+        if (!board) {
             return res.status(404).send({error: 'Board not found.'})
         }
         board.remove()
         res.status(200).send({message: 'Board was successfully deleted.'})
     } catch (e) {
         res.status(400).send(e)
+    }
+})
+
+router.delete('/user/board/notes/:id', auth, async (req, res) => {
+    try {
+        const note = await Note.findById({_id: req.params.id})
+        if (!note) {
+            return res.status(404).send({error: 'Note not found'})
+        }
+        note.remove()
+        res.status(200).send({message: "Note was successfully deleted!"})
+    } catch (e) {
+        res.status(500).send(e)
     }
 })
 
