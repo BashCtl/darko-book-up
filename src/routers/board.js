@@ -121,5 +121,19 @@ router.delete('/user/board/notes/:id', auth, async (req, res) => {
     }
 })
 
+router.put('/user/board/likes/notes/:id', auth, async (req, res) => {
+    try {
+        const note = await Note.findById({_id: req.params.id})
+        if (!note) {
+            return res.status(404).send({error: 'Note not found'})
+        }
+        note.likes += 1
+        await note.save()
+        res.send(note)
+    } catch (e) {
+        res.status(500).send(e)
+    }
+})
+
 
 module.exports = router

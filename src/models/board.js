@@ -9,6 +9,10 @@ const noteSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         require: true,
         ref: 'Board'
+    },
+    likes: {
+        type: Number,
+        default: 0
     }
 }, {
     timestamps: true
@@ -37,7 +41,7 @@ boardSchema.virtual('notes', {
 
 boardSchema.pre('remove', async function (next) {
     const board = this
-    console.log('board_id',board._id)
+    console.log('board_id', board._id)
     await Note.deleteMany({owner: board._id})
     next()
 })
