@@ -13,6 +13,10 @@ const noteSchema = new mongoose.Schema({
     likes: {
         type: Number,
         default: 0
+    },
+    dislikes: {
+        type: Number,
+        default: 0
     }
 }, {
     timestamps: true
