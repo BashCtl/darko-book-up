@@ -1,24 +1,5 @@
 const mongoose = require('mongoose')
-
-const noteSchema = new mongoose.Schema({
-    message: {
-        type: String,
-        trim: true
-    },
-    owner: {
-        type: mongoose.Schema.Types.ObjectId,
-        require: true,
-        ref: 'Board'
-    },
-    likes: [{
-        type: mongoose.Schema.Types.ObjectId
-    }],
-    dislikes: [{
-        type: mongoose.Schema.Types.ObjectId
-    }]
-}, {
-    timestamps: true
-})
+const Note = require('../models/note')
 
 const boardSchema = new mongoose.Schema({
     description: {
@@ -48,6 +29,5 @@ boardSchema.pre('remove', async function (next) {
 })
 
 const Board = mongoose.model('Board', boardSchema)
-const Note = mongoose.model('Note', noteSchema)
 
-module.exports = {Board, Note}
+module.exports = Board

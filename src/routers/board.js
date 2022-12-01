@@ -1,7 +1,7 @@
-const {Board, Note} = require('../models/board')
+const Board = require('../models/board')
+const Note = require('../models/note')
 const express = require('express')
 const auth = require('../middleware/auth')
-const {ObjectID} = require("mongodb");
 
 const router = new express.Router()
 
@@ -164,6 +164,5 @@ router.put('/user/board/dislikes/notes/:id', auth, async (req, res) => {
         res.status(500).send(e)
     }
 })
-
 
 module.exports = router
