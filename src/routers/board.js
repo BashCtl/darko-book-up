@@ -1,6 +1,7 @@
 const {Board, Note} = require('../models/board')
 const express = require('express')
 const auth = require('../middleware/auth')
+const {ObjectID} = require("mongodb");
 
 const router = new express.Router()
 
@@ -127,8 +128,15 @@ router.put('/user/board/likes/notes/:id', auth, async (req, res) => {
         if (!note) {
             return res.status(404).send({error: 'Note not found'})
         }
-        note.likes += 1
-        await note.save()
+        const like = note.likes.find(_id => _id.equals(req.user._id))
+        if (!like) {
+            note.likes.push(req.user._id)
+            const dislikeIndex = note.dislikes.indexOf(req.user._id)
+            if (dislikeIndex !== -1) {
+                note.dislikes.splice(dislikeIndex, 1)
+            }
+            await note.save()
+        }
         res.send(note)
     } catch (e) {
         res.status(500).send(e)
@@ -141,8 +149,16 @@ router.put('/user/board/dislikes/notes/:id', auth, async (req, res) => {
         if (!note) {
             return res.status(404).send({error: 'Note not found'})
         }
-        note.dislikes += 1
-        await note.save()
+        const dislike = note.dislikes.find(_id => _id.equals(req.user._id))
+        if (!dislike) {
+            note.dislikes.push(req.user._id)
+            const likeIndex = note.likes.indexOf(req.user._id)
+            if (likeIndex !== -1) {
+                note.likes.splice(likeIndex, 1)
+            }
+            await note.save()
+        }
+
         res.send(note)
     } catch (e) {
         res.status(500).send(e)
