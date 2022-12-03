@@ -19,5 +19,11 @@ const noteSchema = new mongoose.Schema({
 }, {
     timestamps: true
 })
+
+noteSchema.pre('remove', async function (next) {
+    await Comment.deleteMany({note: this._id})
+    next()
+})
+
 const Note = mongoose.model('Note', noteSchema)
 module.exports = Note

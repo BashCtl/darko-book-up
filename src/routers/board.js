@@ -1,5 +1,6 @@
 const Board = require('../models/board')
 const Note = require('../models/note')
+const Comment = require('../models/comment')
 const express = require('express')
 const auth = require('../middleware/auth')
 
@@ -163,6 +164,22 @@ router.put('/user/board/dislikes/notes/:id', auth, async (req, res) => {
     } catch (e) {
         res.status(500).send(e)
     }
+})
+
+router.post('/user/board/dislikes/notes/comments/:id', auth, async (req, res) => {
+    const comment = req.body.comment
+
+    if (!comment) {
+        return res.status(400).send({error: 'Empty comment'})
+    }
+    try {
+        const commentObj = new Comment({comment, note: req.params.id, owner: req.user._id})
+        await commentObj.save()
+        res.send(commentObj)
+    } catch (e) {
+        res.status(500).send(e)
+    }
+
 })
 
 module.exports = router
