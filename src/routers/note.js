@@ -118,21 +118,4 @@ router.post('/board/notes/dislikes/:id', auth, async (req, res) => {
     }
 })
 
-// add comment for note by it's id
-router.post('/board/notes/comments/:id', auth, async (req, res) => {
-    const comment = req.body.comment
-
-    if (!comment) {
-        return res.status(400).send({error: 'Empty comment'})
-    }
-    try {
-        const commentObj = new Comment({comment, note: req.params.id, owner: req.user._id})
-        await commentObj.save()
-        res.send(commentObj)
-    } catch (e) {
-        res.status(500).send(e)
-    }
-
-})
-
 module.exports = router
