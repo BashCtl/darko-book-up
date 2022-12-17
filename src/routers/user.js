@@ -8,17 +8,19 @@ const router = new express.Router()
 
 // User signup
 router.post('/signup', async (req, res) => {
+    if (Object.keys(req.body).length === 0) {
+        return res.status(400).send({error: 'Empty body'})
+    }
     const user = new User(req.body)
-
     if (await User.findOne({username: user.username})) {
-        return res.status(400).send({error: 'User already exist.'})
+        return res.status(400).json({error: 'User already exist.'})
     }
     try {
         await user.save()
         const token = await user.generateAuthToken()
         res.status(201).send({user, token})
     } catch (error) {
-        res.status(400).send(error)
+        res.status(500).send({error:error.message})
     }
 })
 
