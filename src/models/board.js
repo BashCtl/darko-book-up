@@ -11,6 +11,9 @@ const boardSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         require: true,
         ref: 'User'
+    },
+    background: {
+        type: Buffer
     }
 }, {
     timestamps: true

@@ -1,8 +1,8 @@
 const express = require('express')
-const multer = require('multer')
 const sharp = require('sharp')
 const User = require('../models/user')
 const auth = require('../middleware/auth')
+const upload = require('../middleware/upload')
 
 const router = new express.Router()
 
@@ -69,18 +69,7 @@ router.delete('/user/delete', auth, async (req, res) => {
     }
 })
 
-// Method for upload file
-const upload = multer({
-    limits: {
-        fileSize: 1000000
-    },
-    fileFilter(req, file, callback) {
-        if (!file.originalname.match('\.(jpg|jpeg|png)$')) {
-            return callback(new Error('Please upload jpg, jepg, or png file!'))
-        }
-        callback(undefined, true)
-    }
-})
+
 
 // Upload user avatar
 router.post('/user/avatar', auth, upload.single('avatar'), async (req, res) => {
@@ -102,6 +91,7 @@ router.delete('/user/avatar', auth, async (req, res) => {
     res.send({message: 'Avatar was deleted.'})
 })
 
+// Get user avatar
 router.get('/user/:id/avatar', async (req, res) => {
     try {
         const user = await User.findById(req.params.id)
